@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Integral en Ingeniería de Sistemas - Dark Mode</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        :root {
+            /* Paleta Dark Mode armonizada con Pantone 3200 C (#008F7A) */
+            --bg-color: #121212;      /* Fondo casi negro */
+            --card-bg: #1E1E1E;       /* Tarjetas gris oscuro */
+            --primary: #008F7A;       /* Pantone 3200 */
+            --primary-glow: #00bfa5;  /* Versión más brillante para texto/neon */
+            --secondary-bg: #1a2726;  /* Fondo sutil verdoso oscuro */
+            --text-main: #E0E0E0;     /* Blanco humo para lectura */
+            --text-muted: #A0A0A0;    /* Gris medio */
+            --border-color: #333333;  /* Bordes sutiles */
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-color);
+            margin: 0;
+            padding: 30px;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            line-height: 1.6;
+        }
+
+        .container {
+            background-color: #181818;
+            width: 100%;
+            max-width: 1100px; 
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+            overflow: hidden;
+            border: 1px solid var(--border-color); 
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+        }
+
+        /* Encabezado */
+        header {
+            background: linear-gradient(to bottom, #1E1E1E, #181818);
+            color: var(--text-main);
+            padding: 30px 40px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        header h1 { margin: 0; font-size: 2.2rem; letter-spacing: 0.5px; color: var(--primary-glow); font-weight: 700; text-shadow: 0 0 10px rgba(0, 143, 122, 0.3); }
+        header p { color: var(--text-muted); margin: 8px 0 0; font-weight: 400; font-size: 1.1rem; }
+        
+        .interactive-badge {
+            display: inline-block;
+            background: rgba(0, 143, 122, 0.2);
+            color: var(--primary-glow);
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-top: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid var(--primary);
+        }
+
+        /* Grid de contenido */
+        .content-grid {
+            padding: 40px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 30px;
+            align-items: start;
+        }
+
+        /* Tarjetas Interactivas Dark */
+        .card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+            border: 1px solid var(--border-color);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-left: 4px solid var(--primary); 
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.5);
+            background: #252525;
+        }
+
+        .card.active {
+            border-color: var(--primary-glow);
+            box-shadow: 0 0 15px rgba(0, 143, 122, 0.2);
+            background: #232323;
+        }
+
+        /* Contenido ocultable */
+        .card-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, opacity 0.5s ease;
+            opacity: 0;
+        }
+
+        .card.active .card-details {
+            max-height: 500px;
+            opacity: 1;
+            margin-top: 15px;
+            transition: max-height 0.5s ease-in, opacity 0.5s ease;
+            padding-bottom: 10px; /* Espacio extra al final */
+        }
+
+        .click-hint {
+            font-size: 0.8rem;
+            color: var(--primary);
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        .card:hover .click-hint { opacity: 1; color: var(--primary-glow); }
+        .card.active .click-hint { display: none; }
+
+        h2 { color: var(--primary-glow); font-size: 1.4rem; margin: 0; display: flex; align-items: center; gap: 12px; font-weight: 600; }
+        
+        /* Caja para fórmulas Dark */
+        .math-display {
+            background: #121212; 
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+            margin: 15px 0;
+            font-size: 1.1rem;
+            border: 1px solid #333;
+            color: #fff;
+        }
+
+        /* Estilo especial para la síntesis en modo oscuro */
+        .sintesis-box { 
+            background-color: var(--secondary-bg); 
+            border-left: 4px solid var(--primary-glow); 
+        }
+
+        /* Canvas Dark */
+        .simulation-container {
+            margin-top: 15px;
+            background: #121212;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 120px;
+            background: #0a0a0a; /* Fondo muy oscuro para el gráfico */
+            border-bottom: 1px solid #333;
+        }
+
+        .sim-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 10px;
+        }
+
+        .sim-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+        }
+        
+        .sim-btn:hover { 
+            background: var(--primary-glow); 
+            box-shadow: 0 0 10px rgba(0, 143, 122, 0.5);
+        }
+
+        .sim-data { font-size: 0.9rem; font-weight: bold; color: var(--primary-glow); }
+        .sim-label { font-size: 0.75rem; color: var(--text-muted); display: block; }
+
+        footer {
+            background: #121212;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 25px;
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .footer-info {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .icon { font-size: 1.5rem; color: var(--primary-glow); }
+
+        /* Ajustes de MathJax para modo oscuro */
+        mjx-container { color: #E0E0E0 !important; }
+
+        @media (max-width: 768px) {
+            body { padding: 15px; }
+            .content-grid { grid-template-columns: 1fr; padding: 25px; gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>La Integral en Ingeniería de Sistemas</h1>
+        <p>Síntesis #3: La integral en acción</p>
+        <span class="interactive-badge">Dark Mode Interactiva</span>
+    </header>
+
+    <div class="content-grid">
+        
+        <!-- Tarjeta 1: Definición (Expandible) -->
+        <div class="card" onclick="toggleCard(this)">
+            <span class="click-hint">+</span>
+            <h2><span class="icon">📐</span> ¿Qué es una Integral?</h2>
+            <p>Es el proceso matemático inverso a la derivada que permite determinar acumulaciones.</p>
+            
+            <div class="card-details">
+                <p><strong>Interpretación Geométrica:</strong> Representa el cálculo del área exacta delimitada entre la gráfica de una función \( f(x) \), el eje X y los límites \( a \) y \( b \).</p>
+                <div class="math-display">
+                    \[ A = \int_{a}^{b} f(x) dx \]
+                </div>
+                <p style="font-size: 0.9em; color: var(--primary-glow);">El área coloreada bajo la curva representa el valor total acumulado.</p>
+            </div>
+        </div>
+
+        <!-- Tarjeta 2: Síntesis (AHORA EXPANDIBLE) -->
+        <div class="card sintesis-box" onclick="toggleCard(this)">
+            <span class="click-hint">+</span>
+            <h2><span class="icon">⚡</span> Síntesis: ¿Qué hace?</h2>
+            <p>
+                En ingeniería, la integral actúa como un <strong>"Acumulador"</strong>. 
+            </p>
+            
+            <div class="card-details">
+                <p>
+                    Imagina que tienes un medidor de velocidad que cambia a cada segundo. Si quieres saber la distancia total, no puedes simplemente multiplicar velocidad por tiempo porque la velocidad no es constante.
+                </p>
+                <p>
+                    La integral toma esa <em>tasa de cambio variable</em> (MB/s, Watts) y la suma continuamente en cada instante infinitesimal de tiempo para darnos una <strong>cantidad total exacta</strong> (Datos totales, Energía consumida).
+                </p>
+            </div>
+        </div>
+
+        <!-- Tarjeta 3: Caso Práctico CON SIMULACIÓN -->
+        <div class="card active" id="sim-card" onclick="toggleCard(this)">
+            <span class="click-hint">+</span>
+            <h2><span class="icon">🌐</span> Caso 1: Tráfico de Datos</h2>
+            <p><strong>Modelo:</strong> Velocidad de descarga variable \( v(t) \).</p>
+            
+            <div class="card-details">
+                <div class="math-display" style="margin: 10px 0;">
+                    \[ Datos_{Total} = \int_{0}^{t} v(t) dt \]
+                </div>
+                <p style="font-size: 0.9rem; margin-bottom: 10px;">
+                    La integral calcula el total de MB descargados aunque la velocidad cambie.
+                </p>
+
+                <!-- CANVAS DE SIMULACIÓN -->
+                <div class="simulation-container">
+                    <canvas id="integralCanvas" width="400" height="150"></canvas>
+                    <div class="sim-controls">
+                        <button class="sim-btn" onclick="runSimulation(event)">▶ Ejecutar Integral</button>
+                        <div>
+                            <span class="sim-label">Datos Acumulados:</span>
+                            <span class="sim-data" id="dataCounter">0.00 MB</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta 4: Caso CPU (Expandible) -->
+        <div class="card" onclick="toggleCard(this)">
+            <span class="click-hint">+</span>
+            <h2><span class="icon">💻</span> Caso 2: Consumo CPU</h2>
+            <p><strong>Modelo:</strong> Potencia eléctrica \( P(t) \) vs Tiempo.</p>
+            
+            <div class="card-details">
+                <div class="math-display">
+                    \[ Energía = \int_{0}^{T} P(t) dt \]
+                </div>
+                <p><strong>Explicación:</strong>
+                El área bajo la curva de potencia (Watts) nos da la energía total (Joules) consumida. Esto permite diseñar sistemas de refrigeración eficientes para Data Centers y optimizar la duración de baterías.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="footer-info">
+            <span><strong>Estudiante:</strong> Josue Isai Reyes Castillo</span>
+            <span>|</span>
+            <span><strong>Carrera:</strong> Ing. Sistemas</span>
+            <span>|</span>
+            <span><strong>Fecha:</strong> 28/11/25</span>
+        </div>
+        <div style="margin-top: 15px; font-size: 0.85em; opacity: 0.5;">
+            Asignatura: Cálculo I | Universidad Americana
+        </div>
+    </footer>
+</div>
+
+<script>
+    // Lógica para el Acordeón (Universal)
+    function toggleCard(card) {
+        // Si clickeamos dentro del área de controles de simulación, no cerrar la tarjeta
+        // (Usamos el evento global 'event' que funciona en manejadores inline)
+        if (event && (event.target.closest('.sim-controls') || event.target.tagName === 'BUTTON')) return;
+
+        // Alternar clase active para cualquier tarjeta
+        card.classList.toggle('active');
+        
+        // Manejar el hint visual (+ o -)
+        const hint = card.querySelector('.click-hint');
+        if(hint) {
+            // Un pequeño delay visual si es necesario, o CSS se encarga de ocultarlo
+        }
+    }
+
+    // Lógica para la Simulación de Integral
+    const canvas = document.getElementById('integralCanvas');
+    const ctx = canvas.getContext('2d');
+    const counterEl = document.getElementById('dataCounter');
+    let animationId;
+    let progress = 0;
+    
+    // Función para dibujar la curva base
+    function drawGraph(fillProgress = 0) {
+        const width = canvas.width;
+        const height = canvas.height;
+        
+        ctx.clearRect(0, 0, width, height);
+        
+        // Configuración de línea
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#00bfa5'; // Pantone brillante para Dark Mode
+        
+        // Dibujar curva (Simulación de velocidad variable)
+        ctx.moveTo(0, height);
+        
+        let totalArea = 0;
+
+        for (let x = 0; x <= width; x++) {
+            // Función matemática ficticia
+            const normalizedX = x / 50; 
+            const y = height - (30 + Math.sin(normalizedX) * 20 + Math.sin(normalizedX * 0.5) * 40);
+            
+            ctx.lineTo(x, y);
+
+            if (x < fillProgress) {
+                totalArea += (height - y);
+            }
+        }
+        
+        ctx.stroke();
+
+        // Dibujar el relleno (La Integral)
+        if (fillProgress > 0) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(0, height);
+            
+            for (let x = 0; x <= fillProgress; x++) {
+                const normalizedX = x / 50; 
+                const y = height - (30 + Math.sin(normalizedX) * 20 + Math.sin(normalizedX * 0.5) * 40);
+                ctx.lineTo(x, y);
+            }
+            
+            ctx.lineTo(fillProgress, height);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(0, 191, 165, 0.3)'; // Relleno translúcido brillante
+            ctx.fill();
+            ctx.restore();
+            
+            // Línea de barrido
+            ctx.beginPath();
+            ctx.moveTo(fillProgress, 0);
+            ctx.lineTo(fillProgress, height);
+            ctx.strokeStyle = '#fff';
+            ctx.setLineDash([5, 3]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // Actualizar contador
+        counterEl.innerText = (totalArea * 0.05).toFixed(2) + " MB";
+    }
+
+    function runSimulation(e) {
+        // Detener propagación para evitar que el click cierre la tarjeta (redundancia de seguridad)
+        if(e) e.stopPropagation(); 
+        
+        if (animationId) cancelAnimationFrame(animationId);
+        progress = 0;
+        
+        function animate() {
+            progress += 3; // Un poco más rápido
+            drawGraph(progress);
+            
+            if (progress < canvas.width) {
+                animationId = requestAnimationFrame(animate);
+            }
+        }
+        
+        animate();
+    }
+
+    // Dibujar estado inicial
+    drawGraph(0);
+
+</script>
+
+</body>
+</html>
